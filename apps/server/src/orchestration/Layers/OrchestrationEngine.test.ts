@@ -142,6 +142,7 @@ describe("OrchestrationEngine", () => {
           runtimeMode: "full-access" as const,
           branch: null,
           worktreePath: null,
+          projectName: null,
           latestTurn: null,
           createdAt: "2026-03-03T00:00:02.000Z",
           updatedAt: "2026-03-03T00:00:03.000Z",
@@ -267,6 +268,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -327,6 +329,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "full-access",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -392,6 +395,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -460,6 +464,7 @@ describe("OrchestrationEngine", () => {
           runtimeMode: "approval-required",
           branch: null,
           worktreePath: null,
+          projectName: null,
           createdAt,
         });
         yield* engine.dispatch({
@@ -511,6 +516,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: "t3code/generated-branch-name",
         worktreePath: "/tmp/project-branch-race-worktree",
+        projectName: null,
         createdAt,
       }),
     );
@@ -564,6 +570,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: "main",
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -618,6 +625,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "full-access",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -655,6 +663,7 @@ describe("OrchestrationEngine", () => {
           runtimeMode: "full-access",
           branch: null,
           worktreePath: null,
+          projectName: null,
           createdAt,
         }),
       ),
@@ -706,6 +715,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -827,6 +837,7 @@ describe("OrchestrationEngine", () => {
           runtimeMode: "approval-required",
           branch: null,
           worktreePath: null,
+          projectName: null,
           createdAt,
         }),
       ),
@@ -847,6 +858,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -929,6 +941,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -1072,6 +1085,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -1160,6 +1174,7 @@ describe("OrchestrationEngine", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        projectName: null,
         createdAt,
       }),
     );
@@ -1180,6 +1195,7 @@ describe("OrchestrationEngine", () => {
           runtimeMode: "approval-required",
           branch: null,
           worktreePath: null,
+          projectName: null,
           createdAt,
         }),
       ),

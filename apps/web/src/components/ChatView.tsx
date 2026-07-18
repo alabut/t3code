@@ -4145,6 +4145,7 @@ function ChatViewContent(props: ChatViewProps) {
                       interactionMode,
                       branch: activeThreadBranch,
                       worktreePath: activeThread.worktreePath,
+                      projectName: activeThread.projectName?.trim() || null,
                       createdAt: activeThread.createdAt,
                     },
                   }
@@ -4641,6 +4642,7 @@ function ChatViewContent(props: ChatViewProps) {
         interactionMode: "default",
         branch: activeThreadBranch,
         worktreePath: activeThread.worktreePath,
+        projectName: activeThread.projectName?.trim() || null,
         createdAt,
       },
     });

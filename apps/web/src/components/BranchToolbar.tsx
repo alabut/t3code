@@ -240,6 +240,37 @@ export const BranchToolbar = memo(function BranchToolbar({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-2.5 pb-3 pt-1 sm:px-3">
+      {serverThread === null && draftThread !== null && (
+        <input
+          type="text"
+          value={draftThread.projectName ?? ""}
+          placeholder="Project (optional)"
+          aria-label="Project name for this session"
+          className="h-6 w-32 min-w-0 shrink rounded-md border border-transparent bg-transparent px-1.5 text-sm font-medium text-muted-foreground/80 outline-none transition-colors placeholder:text-muted-foreground/50 hover:border-border focus:border-border focus:text-foreground"
+          onChange={(event) => {
+            const nextProjectName = event.target.value;
+            useComposerDraftStore.getState().setDraftThreadContext(draftId ?? threadRef, {
+              projectName: nextProjectName.trim().length > 0 ? nextProjectName : null,
+            });
+          }}
+        />
+      )}
+
+      <BranchToolbarBranchSelector
+        className="min-w-0 shrink"
+        environmentId={environmentId}
+        threadId={threadId}
+        {...(draftId ? { draftId } : {})}
+        envLocked={envLocked}
+        {...(effectiveEnvModeOverride ? { effectiveEnvModeOverride } : {})}
+        {...(activeThreadBranchOverride !== undefined ? { activeThreadBranchOverride } : {})}
+        {...(onActiveThreadBranchOverrideChange ? { onActiveThreadBranchOverrideChange } : {})}
+        startFromOrigin={startFromOrigin}
+        onStartFromOriginChange={onStartFromOriginChange}
+        {...(onCheckoutPullRequestRequest ? { onCheckoutPullRequestRequest } : {})}
+        {...(onComposerFocusRequest ? { onComposerFocusRequest } : {})}
+      />
+
       {isMobile ? (
         <MobileRunContextSelector
           envLocked={envLocked}
@@ -254,40 +285,25 @@ export const BranchToolbar = memo(function BranchToolbar({
         />
       ) : (
         <div className="flex min-w-0 shrink-0 items-center gap-1">
-          {showEnvironmentPicker && availableEnvironments && onEnvironmentChange && (
-            <>
-              <BranchToolbarEnvironmentSelector
-                envLocked={envLocked}
-                environmentId={environmentId}
-                availableEnvironments={availableEnvironments}
-                onEnvironmentChange={onEnvironmentChange}
-              />
-              <Separator orientation="vertical" className="mx-0.5 h-3.5!" />
-            </>
-          )}
           <BranchToolbarEnvModeSelector
             envLocked={envModeLocked}
             effectiveEnvMode={effectiveEnvMode}
             activeWorktreePath={activeWorktreePath}
             onEnvModeChange={onEnvModeChange}
           />
+          {showEnvironmentPicker && availableEnvironments && onEnvironmentChange && (
+            <>
+              <Separator orientation="vertical" className="mx-0.5 h-3.5!" />
+              <BranchToolbarEnvironmentSelector
+                envLocked={envLocked}
+                environmentId={environmentId}
+                availableEnvironments={availableEnvironments}
+                onEnvironmentChange={onEnvironmentChange}
+              />
+            </>
+          )}
         </div>
       )}
-
-      <BranchToolbarBranchSelector
-        className="min-w-0 flex-1 justify-end md:ml-auto md:flex-none"
-        environmentId={environmentId}
-        threadId={threadId}
-        {...(draftId ? { draftId } : {})}
-        envLocked={envLocked}
-        {...(effectiveEnvModeOverride ? { effectiveEnvModeOverride } : {})}
-        {...(activeThreadBranchOverride !== undefined ? { activeThreadBranchOverride } : {})}
-        {...(onActiveThreadBranchOverrideChange ? { onActiveThreadBranchOverrideChange } : {})}
-        startFromOrigin={startFromOrigin}
-        onStartFromOriginChange={onStartFromOriginChange}
-        {...(onCheckoutPullRequestRequest ? { onCheckoutPullRequestRequest } : {})}
-        {...(onComposerFocusRequest ? { onComposerFocusRequest } : {})}
-      />
     </div>
   );
 });

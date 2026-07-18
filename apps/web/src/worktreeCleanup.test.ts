@@ -30,6 +30,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     latestTurn: null,
     branch: null,
     worktreePath: null,
+    projectName: null,
     ...overrides,
   };
 }
@@ -57,10 +58,12 @@ describe("getOrphanedWorktreePathForThread", () => {
       makeThread({
         id: ThreadId.make("thread-1"),
         worktreePath: "/tmp/repo/worktrees/feature-a",
+        projectName: null,
       }),
       makeThread({
         id: ThreadId.make("thread-2"),
         worktreePath: "/tmp/repo/worktrees/feature-a",
+        projectName: null,
       }),
     ];
     const result = getOrphanedWorktreePathForThread(threads, ThreadId.make("thread-1"));
@@ -72,10 +75,12 @@ describe("getOrphanedWorktreePathForThread", () => {
       makeThread({
         id: ThreadId.make("thread-1"),
         worktreePath: "/tmp/repo/worktrees/feature-a",
+        projectName: null,
       }),
       makeThread({
         id: ThreadId.make("thread-2"),
         worktreePath: "/tmp/repo/worktrees/feature-b",
+        projectName: null,
       }),
     ];
     const result = getOrphanedWorktreePathForThread(threads, ThreadId.make("thread-1"));

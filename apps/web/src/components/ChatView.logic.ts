@@ -49,6 +49,7 @@ export function buildLocalDraftThread(
     latestTurn: null,
     branch: draftThread.branch,
     worktreePath: draftThread.worktreePath,
+    projectName: draftThread.projectName,
     checkpoints: [],
     activities: [],
     proposedPlans: [],

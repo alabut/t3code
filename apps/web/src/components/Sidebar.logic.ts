@@ -191,17 +191,20 @@ export function resolveSidebarNewThreadSeedContext(input: {
     projectId: string;
     branch: string | null;
     worktreePath: string | null;
+    projectName?: string | null;
   } | null;
   activeDraftThread?: {
     projectId: string;
     branch: string | null;
     worktreePath: string | null;
+    projectName?: string | null;
     envMode: SidebarNewThreadEnvMode;
     startFromOrigin: boolean;
   } | null;
 }): {
   branch?: string | null;
   worktreePath?: string | null;
+  projectName?: string | null;
   envMode: SidebarNewThreadEnvMode;
   startFromOrigin?: boolean;
 } {
@@ -215,6 +218,7 @@ export function resolveSidebarNewThreadSeedContext(input: {
     return {
       branch: input.activeDraftThread.branch,
       worktreePath: input.activeDraftThread.worktreePath,
+      projectName: input.activeDraftThread.projectName ?? null,
       envMode: input.activeDraftThread.envMode,
       startFromOrigin: input.activeDraftThread.startFromOrigin,
     };
@@ -224,6 +228,7 @@ export function resolveSidebarNewThreadSeedContext(input: {
     return {
       branch: input.activeThread.branch,
       worktreePath: input.activeThread.worktreePath,
+      projectName: input.activeThread.projectName ?? null,
       envMode: input.activeThread.worktreePath ? "worktree" : "local",
     };
   }

@@ -92,6 +92,7 @@ const THREAD_SHELL = {
   interactionMode: "default",
   branch: null,
   worktreePath: null,
+  projectName: null,
   latestTurn: null,
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-01T00:00:00.000Z",
@@ -203,6 +204,7 @@ describe("environment entity projections", () => {
       title: "Cached thread",
       branch: "stale-branch",
       worktreePath: "/repo/stale-worktree",
+      projectName: null,
       deletedAt: null,
       messages,
       proposedPlans: [],
@@ -215,6 +217,7 @@ describe("environment entity projections", () => {
       title: "Current thread",
       branch: "current-branch",
       worktreePath: "/repo/current-worktree",
+      projectName: null,
     };
 
     const merged = mergeEnvironmentThread(detail, shell);
@@ -223,6 +226,7 @@ describe("environment entity projections", () => {
       title: "Current thread",
       branch: "current-branch",
       worktreePath: "/repo/current-worktree",
+      projectName: null,
     });
     expect(merged?.messages).toBe(messages);
   });

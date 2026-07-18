@@ -45,6 +45,7 @@ export function useNewThreadHandler() {
       options?: {
         branch?: string | null;
         worktreePath?: string | null;
+        projectName?: string | null;
         envMode?: DraftThreadEnvMode;
         startFromOrigin?: boolean;
       },
@@ -70,6 +71,7 @@ export function useNewThreadHandler() {
         : scopedProjectKey(projectRef);
       const hasBranchOption = options?.branch !== undefined;
       const hasWorktreePathOption = options?.worktreePath !== undefined;
+      const hasProjectNameOption = options?.projectName !== undefined;
       const hasEnvModeOption = options?.envMode !== undefined;
       const hasStartFromOriginOption = options?.startFromOrigin !== undefined;
       const storedDraftThread = getDraftSessionByLogicalProjectKey(logicalProjectKey);
@@ -93,12 +95,14 @@ export function useNewThreadHandler() {
           if (
             hasBranchOption ||
             hasWorktreePathOption ||
+            hasProjectNameOption ||
             hasEnvModeOption ||
             hasStartFromOriginOption
           ) {
             setDraftThreadContext(reusableStoredDraftThread.draftId, {
               ...(hasBranchOption ? { branch: options?.branch ?? null } : {}),
               ...(hasWorktreePathOption ? { worktreePath: options?.worktreePath ?? null } : {}),
+              ...(hasProjectNameOption ? { projectName: options?.projectName ?? null } : {}),
               ...(hasEnvModeOption ? { envMode: options?.envMode } : {}),
               ...(hasStartFromOriginOption ? { startFromOrigin: options?.startFromOrigin } : {}),
             });
@@ -133,12 +137,14 @@ export function useNewThreadHandler() {
         if (
           hasBranchOption ||
           hasWorktreePathOption ||
+          hasProjectNameOption ||
           hasEnvModeOption ||
           hasStartFromOriginOption
         ) {
           setDraftThreadContext(currentRouteTarget.draftId, {
             ...(hasBranchOption ? { branch: options?.branch ?? null } : {}),
             ...(hasWorktreePathOption ? { worktreePath: options?.worktreePath ?? null } : {}),
+            ...(hasProjectNameOption ? { projectName: options?.projectName ?? null } : {}),
             ...(hasEnvModeOption ? { envMode: options?.envMode } : {}),
             ...(hasStartFromOriginOption ? { startFromOrigin: options?.startFromOrigin } : {}),
           });
@@ -150,6 +156,7 @@ export function useNewThreadHandler() {
           interactionMode: latestActiveDraftThread.interactionMode,
           ...(hasBranchOption ? { branch: options?.branch ?? null } : {}),
           ...(hasWorktreePathOption ? { worktreePath: options?.worktreePath ?? null } : {}),
+          ...(hasProjectNameOption ? { projectName: options?.projectName ?? null } : {}),
           ...(hasEnvModeOption ? { envMode: options?.envMode } : {}),
           ...(hasStartFromOriginOption ? { startFromOrigin: options?.startFromOrigin } : {}),
         });
@@ -166,6 +173,7 @@ export function useNewThreadHandler() {
           createdAt,
           branch: options?.branch ?? null,
           worktreePath: options?.worktreePath ?? null,
+          projectName: options?.projectName ?? null,
           envMode: initialEnvMode,
           startFromOrigin:
             options?.startFromOrigin ??

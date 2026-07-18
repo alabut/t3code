@@ -299,6 +299,7 @@ describe("resolveSidebarNewThreadSeedContext", () => {
     ).toEqual({
       branch: "effect-atom",
       worktreePath: null,
+      projectName: null,
       envMode: "local",
     });
   });
@@ -324,6 +325,7 @@ describe("resolveSidebarNewThreadSeedContext", () => {
     ).toEqual({
       branch: "feature/new-draft",
       worktreePath: "/repo/worktree",
+      projectName: null,
       envMode: "worktree",
       startFromOrigin: true,
     });
@@ -835,6 +837,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     latestTurn: null,
     branch: null,
     worktreePath: null,
+    projectName: null,
     checkpoints: [],
     activities: [],
     ...overrides,
