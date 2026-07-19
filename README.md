@@ -1,90 +1,54 @@
-# T3 Code
+# My T3 Code Fork
 
-T3 Code is a minimal web GUI for coding agents (currently Codex, Claude, Cursor, and OpenCode, more coming soon).
+This is my personal fork of [T3 Code](https://github.com/pingdotgg/t3code). Full credit to the T3 team for building the thing I get to tinker with.
 
-## Installation
+I'm building my own personal harness that I can shape around the way I like to work. In particular, projects as a way to group together sessions from different agent providers.
 
-> [!WARNING]
-> T3 Code currently supports Codex, Claude, Cursor, and OpenCode.
-> Install and authenticate at least one provider before use:
->
-> - Codex: install [Codex CLI](https://developers.openai.com/codex/cli) and run `codex login`
-> - Claude: install [Claude Code](https://claude.com/product/claude-code) and run `claude auth login`
-> - Cursor: install [Cursor CLI](https://cursor.com/cli) and run `cursor-agent login`
-> - OpenCode: install [OpenCode](https://opencode.ai) and run `opencode auth login`
+## Motivation
 
-### Run without installing
+I created a skill to dispatch work much like sub-agents because I found that Cursor has an almost infinite capacity for coding, especially when using Composer.
 
-```bash
-npx t3@latest
+Composer is so good at focused, small coding tasks as long as it's orchestrated by larger models for the overall guidance.
+
+I quickly ended up with a bunch of different agents with different roles spread across providers. It became a bit of a nightmare.
+
+This isn't unique to me. There are a ton of projects and even a few startups tackling this orchestration challenge.
+
+It would probably be easier to have an unlimited budget for Claude and do it all there, or an insanely beefy machine that can run the most powerful open models locally.
+
+But I have an almost nostalgic attachment to Cursor. It was such an excellent coding agent when I started working directly with code, especially code I care about, like the frontend of my personal site.
+
+Orchestration is so token-expensive that I bounce between Claude and Codex every day. I keep expiring the five-hour usage windows and come close to expiring the full seven-day quotas.
+
+Bouncing between the two gives me just enough horsepower to keep these projects going—but not if they're also doing all the coding.
+
+Offloading the coding to Cursor is where I accidentally unlocked an unlimited building cheat code.
+
+The lowest subscription tier across the three major providers is surprisingly cost-effective. It tapped into my scrappy mindset to milk it as far as I can. It's also been way too tempting to find out how much coding power is available if I can herd these cats.
+
+## Why projects?
+
+Right now, this is the simplest thing I can think of.
+
+I'm a solo developer. I want to understand how sessions group together for projects.
+
+Everything else I've seen feels overcomplicated for my current needs: Kanban boards, burndown rates, and setups trying to emulate tools like Linear for larger teams.
+
+For now:
+
+```text
+Repository
+└── Project
+    ├── Claude sessions
+    ├── Codex sessions
+    ├── Cursor sessions
+    └── Other sessions
 ```
 
-Tip: Use `npx t3@latest --help` for the full CLI reference.
+Later, I might build my own lightweight project view around goals, documentation, branches, and next actions. Maybe a small Kanban view.
 
-### Desktop app
+There are probably more levels after I wrap my head around organizing sessions by projects.
 
-Install the latest version of the desktop app from [GitHub Releases](https://github.com/pingdotgg/t3code/releases), or from your favorite package registry:
+For now, I'm trying to herd the cats.
 
-#### Windows (`winget`)
-
-```bash
-winget install T3Tools.T3Code
-```
-
-#### macOS (Homebrew)
-
-```bash
-brew install --cask t3-code
-```
-
-#### Arch Linux (AUR)
-
-```bash
-yay -S t3code-bin
-```
-
-## Some notes
-
-We are very very early in this project. Expect bugs.
-
-We are not accepting contributions yet.
-
-There's no public docs site yet, checkout the miscellaneous markdown files in [docs](./docs).
-
-## Documentation
-
-- [Getting started](./docs/getting-started/quick-start.md)
-- [Architecture overview](./docs/architecture/overview.md)
-- [Provider guides](./docs/providers/codex.md)
-- [Operations](./docs/operations/ci.md)
-- [Reference](./docs/reference/encyclopedia.md)
-
-## If you REALLY want to contribute still.... read this first
-
-### Install `vp`
-
-T3 Code uses Vite+ so you'll need to install the global `vp` command-line tool.
-
-#### macOS / Linux
-
-```bash
-curl -fsSL https://vite.plus | bash
-```
-
-#### Windows
-
-```bash
-irm https://vite.plus/ps1 | iex
-```
-
-Checkout their getting started guide for more information: https://viteplus.dev/guide/
-
-### Install dependencies
-
-```bash
-vp i
-```
-
-Read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening an issue or PR.
-
-Need support? Join the [Discord](https://discord.gg/jn4EGJjrvv).
+For the original project, visit [pingdotgg/t3code](https://github.com/pingdotgg/t3code).
