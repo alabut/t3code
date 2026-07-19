@@ -8,6 +8,7 @@ import {
   FolderPlusIcon,
   Globe2Icon,
   LoaderIcon,
+  PlusIcon,
   SearchIcon,
   SettingsIcon,
   SquarePenIcon,
@@ -1938,8 +1939,34 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
     ],
   );
 
+  const promptForNewProjectName = useCallback((): string | null => {
+    const next = window.prompt("New project name");
+    const trimmed = next?.trim();
+    if (!trimmed) return null;
+    if (trimmed.toLocaleLowerCase() === DEFAULT_PROJECT_GROUP_NAME.toLocaleLowerCase()) {
+      toastManager.add({
+        type: "warning",
+        title: `“${DEFAULT_PROJECT_GROUP_NAME}” is reserved`,
+        description: "Choose a different project name.",
+      });
+      return null;
+    }
+    const duplicate = projectNameOptionsRef.current.some(
+      (projectName) => projectName.toLocaleLowerCase() === trimmed.toLocaleLowerCase(),
+    );
+    if (duplicate) {
+      toastManager.add({
+        type: "warning",
+        title: "Project already exists",
+        description: `Choose “${trimmed}” from the existing project list instead.`,
+      });
+      return null;
+    }
+    return trimmed;
+  }, []);
+
   const createThreadForProjectMember = useCallback(
-    (member: SidebarProjectGroupMember) => {
+    (member: SidebarProjectGroupMember, projectNameOverride?: string) => {
       const currentRouteParams =
         router.state.matches[router.state.matches.length - 1]?.params ?? {};
       const currentRouteTarget = resolveThreadRouteTarget(currentRouteParams);
@@ -1992,9 +2019,11 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
             ...(seedContext.worktreePath !== undefined
               ? { worktreePath: seedContext.worktreePath }
               : {}),
-            ...(seedContext.projectName !== undefined
-              ? { projectName: seedContext.projectName }
-              : {}),
+            ...(projectNameOverride !== undefined
+              ? { projectName: projectNameOverride }
+              : seedContext.projectName !== undefined
+                ? { projectName: seedContext.projectName }
+                : {}),
             envMode: seedContext.envMode,
             ...(seedContext.startFromOrigin !== undefined
               ? { startFromOrigin: seedContext.startFromOrigin }
@@ -2068,6 +2097,46 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
       })();
     },
     [createThreadForProjectMember, project.groupedProjectCount, project.memberProjects],
+  );
+
+  const handleCreateProjectClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const createForMember = (member: SidebarProjectGroupMember) => {
+        const projectName = promptForNewProjectName();
+        if (!projectName) return;
+        createThreadForProjectMember(member, projectName);
+      };
+
+      if (project.memberProjects.length === 1) {
+        createForMember(project.memberProjects[0]!);
+        return;
+      }
+
+      void (async () => {
+        const api = readLocalApi();
+        if (!api) return;
+        const clicked = await api.contextMenu.show(
+          project.memberProjects.map((member) => ({
+            id: member.physicalProjectKey,
+            label: formatProjectMemberActionLabel(member, project.groupedProjectCount),
+          })),
+          { x: event.clientX, y: event.clientY },
+        );
+        const targetMember = project.memberProjects.find(
+          (member) => member.physicalProjectKey === clicked,
+        );
+        if (targetMember) createForMember(targetMember);
+      })();
+    },
+    [
+      createThreadForProjectMember,
+      project.groupedProjectCount,
+      project.memberProjects,
+      promptForNewProjectName,
+    ],
   );
 
   const attemptArchiveThread = useCallback(
@@ -2249,6 +2318,7 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
             disabled: currentProjectGroupName === projectName,
           };
         }),
+        { id: "move-project:new", label: "+ New project…" },
       ];
       moveProjectTargets.set("move-project:general", null);
       const clicked = await api.contextMenu.show(
@@ -2274,6 +2344,25 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
 
       if (clicked === "mark-unread") {
         markThreadUnread(threadKey, thread.latestTurn?.completedAt);
+        return;
+      }
+      if (clicked === "move-project:new") {
+        const projectName = promptForNewProjectName();
+        if (!projectName) return;
+        const result = await updateThreadMetadata({
+          environmentId: thread.environmentId,
+          input: { threadId: thread.id, projectName },
+        });
+        if (result._tag === "Failure" && !isAtomCommandInterrupted(result)) {
+          const error = squashAtomCommandFailure(result);
+          toastManager.add(
+            stackedThreadToast({
+              type: "error",
+              title: "Failed to create project",
+              description: error instanceof Error ? error.message : "An error occurred.",
+            }),
+          );
+        }
         return;
       }
       if (clicked && moveProjectTargets.has(clicked)) {
@@ -2346,6 +2435,7 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
       markThreadUnread,
       memberProjectByScopedKey,
       project.workspaceRoot,
+      promptForNewProjectName,
       startThreadRename,
       updateThreadMetadata,
     ],
@@ -2463,7 +2553,7 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
         <SidebarMenuButton
           ref={isManualProjectSorting ? dragHandleProps?.setActivatorNodeRef : undefined}
           size="sm"
-          className={`gap-2 px-2 py-1.5 pr-8 text-left hover:bg-accent group-hover/project-header:bg-accent group-hover/project-header:text-sidebar-accent-foreground max-sm:pr-14 ${
+          className={`gap-2 px-2 py-1.5 pr-14 text-left hover:bg-accent group-hover/project-header:bg-accent group-hover/project-header:text-sidebar-accent-foreground max-sm:pr-20 ${
             isManualProjectSorting ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
           }`}
           {...(isManualProjectSorting && dragHandleProps ? dragHandleProps.attributes : {})}
@@ -2543,26 +2633,42 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
             </TooltipPopup>
           </Tooltip>
         )}
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <div className="pointer-events-none absolute top-[calc(50%+1px)] right-0.5 -translate-y-1/2 opacity-0 transition-opacity duration-150 max-sm:pointer-events-auto max-sm:opacity-100 group-hover/project-header:pointer-events-auto group-hover/project-header:opacity-100 group-focus-within/project-header:pointer-events-auto group-focus-within/project-header:opacity-100">
+        <div className="pointer-events-none absolute top-[calc(50%+1px)] right-0.5 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity duration-150 max-sm:pointer-events-auto max-sm:opacity-100 group-hover/project-header:pointer-events-auto group-hover/project-header:opacity-100 group-focus-within/project-header:pointer-events-auto group-focus-within/project-header:opacity-100">
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label={`Create new project in ${project.displayName}`}
+                  data-testid="new-project-button"
+                  className={SIDEBAR_ICON_ACTION_BUTTON_CLASS}
+                  onClick={handleCreateProjectClick}
+                />
+              }
+            >
+              <FolderPlusIcon className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipPopup side="top">New project</TooltipPopup>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
                 <button
                   type="button"
                   aria-label={`Create new thread in ${project.displayName}`}
                   data-testid="new-thread-button"
                   className={SIDEBAR_ICON_ACTION_BUTTON_CLASS}
                   onClick={handleCreateThreadClick}
-                >
-                  <SquarePenIcon className="size-3.5" />
-                </button>
-              </div>
-            }
-          />
-          <TooltipPopup side="top">
-            {newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "New thread"}
-          </TooltipPopup>
-        </Tooltip>
+                />
+              }
+            >
+              <SquarePenIcon className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipPopup side="top">
+              {newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "New thread"}
+            </TooltipPopup>
+          </Tooltip>
+        </div>
       </div>
 
       <SidebarProjectThreadList
@@ -3273,7 +3379,7 @@ const SidebarProjectsContent = memo(function SidebarProjectsContent(
                   />
                 }
               >
-                <FolderPlusIcon className="size-3.5" />
+                <PlusIcon className="size-3.5" />
               </TooltipTrigger>
               <TooltipPopup side="right">Add repo</TooltipPopup>
             </Tooltip>
