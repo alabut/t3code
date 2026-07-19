@@ -215,7 +215,11 @@ import {
   selectProjectGroupingSettings,
 } from "../logicalProject";
 import type { SidebarThreadSummary } from "../types";
-import { groupThreadsByProjectName } from "../threadProjectNameGrouping";
+import {
+  DEFAULT_PROJECT_GROUP_NAME,
+  groupThreadsByProjectName,
+  resolveThreadProjectGroupName,
+} from "../threadProjectNameGrouping";
 import { PROVIDER_ICON_BY_PROVIDER } from "./chat/providerIconUtils";
 import { ProviderDriverKind } from "@t3tools/contracts";
 import * as Schema from "effect/Schema";
@@ -1281,6 +1285,15 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
   const sidebarThreadByKeyRef = useRef(sidebarThreadByKey);
   sidebarThreadByKeyRef.current = sidebarThreadByKey;
   const projectThreads = sidebarThreads;
+  const projectNameOptions = useMemo(
+    () =>
+      groupThreadsByProjectName(projectThreads)
+        .filter((group) => !group.isDefaultGroup)
+        .map((group) => group.projectName),
+    [projectThreads],
+  );
+  const projectNameOptionsRef = useRef(projectNameOptions);
+  projectNameOptionsRef.current = projectNameOptions;
   const projectPreferenceKeys = useMemo(() => projectExpansionPreferenceKeys(project), [project]);
   const projectExpanded = useUiStateStore((state) =>
     resolveProjectExpanded(state.projectExpandedById, projectPreferenceKeys),
@@ -2219,9 +2232,33 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
       );
       const threadWorkspacePath =
         thread.worktreePath ?? threadProject?.workspaceRoot ?? project.workspaceRoot ?? null;
+      const currentProjectGroupName = resolveThreadProjectGroupName(thread);
+      const moveProjectTargets = new Map<string, string | null>();
+      const moveProjectItems: ContextMenuItem<string>[] = [
+        {
+          id: "move-project:general",
+          label: DEFAULT_PROJECT_GROUP_NAME,
+          disabled: currentProjectGroupName === DEFAULT_PROJECT_GROUP_NAME,
+        },
+        ...projectNameOptionsRef.current.map((projectName, index) => {
+          const id = `move-project:${index}`;
+          moveProjectTargets.set(id, projectName);
+          return {
+            id,
+            label: projectName,
+            disabled: currentProjectGroupName === projectName,
+          };
+        }),
+      ];
+      moveProjectTargets.set("move-project:general", null);
       const clicked = await api.contextMenu.show(
         [
           { id: "rename", label: "Rename thread" },
+          {
+            id: "move-project:submenu",
+            label: "Move to project…",
+            children: moveProjectItems,
+          },
           { id: "mark-unread", label: "Mark unread" },
           { id: "copy-path", label: "Copy Path" },
           { id: "copy-thread-id", label: "Copy Thread ID" },
@@ -2237,6 +2274,26 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
 
       if (clicked === "mark-unread") {
         markThreadUnread(threadKey, thread.latestTurn?.completedAt);
+        return;
+      }
+      if (clicked && moveProjectTargets.has(clicked)) {
+        const result = await updateThreadMetadata({
+          environmentId: thread.environmentId,
+          input: {
+            threadId: thread.id,
+            projectName: moveProjectTargets.get(clicked) ?? null,
+          },
+        });
+        if (result._tag === "Failure" && !isAtomCommandInterrupted(result)) {
+          const error = squashAtomCommandFailure(result);
+          toastManager.add(
+            stackedThreadToast({
+              type: "error",
+              title: "Failed to move thread",
+              description: error instanceof Error ? error.message : "An error occurred.",
+            }),
+          );
+        }
         return;
       }
       if (clicked === "copy-path") {
@@ -2290,6 +2347,7 @@ const SidebarProjectItem = memo(function SidebarProjectItem(props: SidebarProjec
       memberProjectByScopedKey,
       project.workspaceRoot,
       startThreadRename,
+      updateThreadMetadata,
     ],
   );
 
